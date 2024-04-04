@@ -259,17 +259,32 @@ final class SwiftLocationTests: XCTestCase {
         
         // Check the timeout with a filtered location
         do {
+            let timeout: TimeInterval = 2.0
             let nonValidLocation = CLLocation(
+                coordinate: CLLocationCoordinate2D(latitude: 41.915001, longitude: 12.577772),
+                altitude: 100, horizontalAccuracy: 150, verticalAccuracy: 20, timestamp: Date()
+            )
+            let validLocation = CLLocation(
                 coordinate: CLLocationCoordinate2D(latitude: 41.915001, longitude: 12.577772),
                 altitude: 100, horizontalAccuracy: 50, verticalAccuracy: 20, timestamp: Date()
             )
             simulateRequestLocationDelayedResponse(event: .didUpdateLocations([nonValidLocation]))
-            
+            simulateRequestLocationDelayedResponse(delay: timeout+0.1, event: .didUpdateLocations([validLocation]))
+
             let _ = try await self.location.requestLocation(accuracy: [
                 .horizontal(100)
-            ], timeout: 2)
+            ], timeout: timeout)
+            XCTFail("expected timeout")
         } catch {
             XCTAssertEqual(error as? LocationErrors, LocationErrors.timeout)
+            // Waiting timeout after simulateRequestLocationDelayedResponse: delayed timeout+0.1
+            let exp = expectation(description: "exp")
+            DispatchQueue.global().asyncAfter(deadline: .now() + 2.5) {
+                Task.detached {
+                    exp.fulfill()
+                }
+            }
+            await fulfillment(of: [exp], timeout: 3)
         }
         
         // Check the return of some non filtered locations
@@ -425,8 +440,8 @@ final class SwiftLocationTests: XCTestCase {
     }
     #endif
     
-    private func simulateRequestLocationDelayedResponse(event: Tasks.ContinuousUpdateLocation.StreamEvent) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+    private func simulateRequestLocationDelayedResponse(delay: TimeInterval = 1, event: Tasks.ContinuousUpdateLocation.StreamEvent) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: {
             self.mockLocationManager.updateLocations(event: event)
         })
     }

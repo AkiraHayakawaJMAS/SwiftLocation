@@ -97,6 +97,10 @@ extension Tasks {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + timeout) { [weak self] in
                 self?.continuation?.resume(throwing: LocationErrors.timeout)
+                self?.continuation = nil
+                if let self {
+                    cancellable?.cancel(task: self)
+                }
             }
         }
     }
