@@ -43,9 +43,10 @@ public final class Location {
     private(set) var locationDelegate: LocationDelegate
     
     /// Cache used to store some bits of the data retrived by the underlying core location service.
-    private let cache = UserDefaults(suiteName: "com.swiftlocation.cache")
-    private let locationCacheKey = "lastLocation"
+    private let cacheFileManager = FileManager()
+    private let locationCacheData = URL.cachesDirectory.appending(path: "SwiftLocation", directoryHint: .isDirectory).appending(components: "location", directoryHint: .isDirectory)
 
+    
     // MARK: - Public Properties
     
     /// The last received location from underlying Location Manager service.
@@ -53,10 +54,31 @@ public final class Location {
     /// filters or logic behind.
     public internal(set) var lastLocation: CLLocation? {
         get {
-            cache?.location(forKey: locationCacheKey)
+            let fileURL = locationCacheData.appending(path: "location.data")
+            do {
+                let locationData = try Data.init(contentsOf: fileURL)
+                return try NSKeyedUnarchiver.unarchivedObject(ofClass: CLLocation.self, from: locationData)
+            }catch{
+                debugPrint(error)
+                return nil
+            }
         }
         set {
-            cache?.set(location: newValue, forKey: locationCacheKey)
+            let fileURL = locationCacheData.appending(path: "location.data")
+            if let newValue {
+                do {
+                    let locationData = try NSKeyedArchiver.archivedData(withRootObject: newValue, requiringSecureCoding: false)
+                    try locationData.write(to: fileURL, options: .atomic)
+                }catch{
+                    debugPrint(error)
+                }
+            }else{
+                do {
+                    try cacheFileManager.removeItem(at: fileURL)
+                }catch{
+                    debugPrint(error)
+                }
+            }
         }
     }
     
@@ -140,6 +162,11 @@ public final class Location {
         self.locationManager.delegate = locationDelegate
         self.locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates
         self.asyncBridge.location = self
+        do {
+            try self.makeCacheDirectory()
+        }catch{
+            debugPrint(error)
+        }
     }
     #else
     /// Initialize a new SwiftLocation instance to work with the Core Location service.
@@ -151,6 +178,11 @@ public final class Location {
         self.locationManager = locationManager
         self.locationManager.delegate = locationDelegate
         self.asyncBridge.location = self
+        do {
+            try self.makeCacheDirectory()
+        }catch{
+            debugPrint(error)
+        }
     }
     #endif
     
@@ -479,5 +511,11 @@ public final class Location {
         }
     }
     #endif
+    
+    private func makeCacheDirectory() throws {
+        if !self.cacheFileManager.fileExists(atPath: locationCacheData.path()) {
+            try self.cacheFileManager.createDirectory(at: locationCacheData, withIntermediateDirectories: true)
+        }
+    }
     
 }
