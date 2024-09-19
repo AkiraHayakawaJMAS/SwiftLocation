@@ -28,16 +28,16 @@ import CoreLocation
 
 extension Tasks {
     
-    public final class LocatePermission: AnyTask {
+    public final class LocatePermission: AnyTask, @unchecked Sendable {
         
         // MARK: - Support Structures
 
-        public typealias Continuation = CheckedContinuation<CLAuthorizationStatus, Error>
+        public typealias Continuation = CheckedContinuation<CLAuthorizationStatus, any Error>
         
         // MARK: - Public Properties
 
         public let uuid = UUID()
-        public var cancellable: CancellableTask?
+        public var cancellable: (any CancellableTask)?
         var continuation: Continuation?
         
         // MARK: - Private Properties

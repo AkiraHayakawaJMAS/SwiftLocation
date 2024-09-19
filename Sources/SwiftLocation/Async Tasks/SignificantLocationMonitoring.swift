@@ -28,7 +28,7 @@ import CoreLocation
 
 extension Tasks {
     
-    public final class SignificantLocationMonitoring: AnyTask {
+    public final class SignificantLocationMonitoring: AnyTask, @unchecked Sendable {
         
         // MARK: - Support Structures
 
@@ -48,7 +48,7 @@ extension Tasks {
             case didUpdateLocations(_ locations: [CLLocation])
             
             /// An error has occurred.
-            case didFailWithError(_ error: Error)
+            case didFailWithError(_ error: any Error)
             
             public var description: String {
                 switch self {
@@ -89,7 +89,7 @@ extension Tasks {
         
         public let uuid = UUID()
         public var stream: Stream.Continuation?
-        public var cancellable: CancellableTask?
+        public var cancellable: (any CancellableTask)?
         
         public func receivedLocationManagerEvent(_ event: LocationManagerBridgeEvent) {
             switch event {

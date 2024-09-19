@@ -32,7 +32,7 @@ final class LocationDelegate: NSObject, CLLocationManagerDelegate {
     
     private weak var asyncBridge: LocationAsyncBridge?
     
-    private var locationManager: LocationManagerProtocol {
+    private var locationManager: any LocationManagerProtocol {
         asyncBridge!.location!.locationManager
     }
     
@@ -53,7 +53,7 @@ final class LocationDelegate: NSObject, CLLocationManagerDelegate {
         asyncBridge?.dispatchEvent(.receiveNewLocations(locations: locations))
     }
 
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
         asyncBridge?.dispatchEvent(.didFailWithError(error))
     }
     
@@ -80,7 +80,7 @@ final class LocationDelegate: NSObject, CLLocationManagerDelegate {
     // MARK: - Region Monitoring
     
     #if os(iOS)
-    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
+    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: any Error) {
         asyncBridge?.dispatchEvent(.monitoringDidFailFor(region: region, error: error))
     }
     
@@ -112,7 +112,7 @@ final class LocationDelegate: NSObject, CLLocationManagerDelegate {
         asyncBridge?.dispatchEvent(.didRange(beacons: beacons, constraint: beaconConstraint))
     }
         
-    func locationManager(_ manager: CLLocationManager, didFailRangingFor beaconConstraint: CLBeaconIdentityConstraint, error: Error) {
+    func locationManager(_ manager: CLLocationManager, didFailRangingFor beaconConstraint: CLBeaconIdentityConstraint, error: any Error) {
         asyncBridge?.dispatchEvent(.didFailRanginFor(constraint: beaconConstraint, error: error))
     }
     #endif

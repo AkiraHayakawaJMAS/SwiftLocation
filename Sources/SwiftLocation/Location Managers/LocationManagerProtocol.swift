@@ -32,7 +32,7 @@ public protocol LocationManagerProtocol {
     
     // MARK: - Delegate
     
-    var delegate: CLLocationManagerDelegate? { get set }
+    var delegate: (any CLLocationManagerDelegate)? { get set }
     
     // MARK: - Authorization
     
@@ -61,7 +61,7 @@ public protocol LocationManagerProtocol {
     #if !os(tvOS)
     func requestAlwaysAuthorization()
     #endif
-    func requestTemporaryFullAccuracyAuthorization(withPurposeKey purposeKey: String, completion: ((Error?) -> Void)?)
+    func requestTemporaryFullAccuracyAuthorization(withPurposeKey purposeKey: String, completion: (((any Error)?) -> Void)?)
 
     // MARK: - Getting Locations
     

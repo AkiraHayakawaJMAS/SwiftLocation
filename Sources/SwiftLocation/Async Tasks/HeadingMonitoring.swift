@@ -24,12 +24,12 @@
 //
 
 import Foundation
-import CoreLocation
+@preconcurrency import CoreLocation
 
 #if os(iOS)
 extension Tasks {
     
-    public final class HeadingMonitoring: AnyTask {
+    public final class HeadingMonitoring: AnyTask, @unchecked Sendable {
         
         // MARK: - Support Structures
 
@@ -37,13 +37,13 @@ extension Tasks {
         public typealias Stream = AsyncStream<StreamEvent>
         
         /// The event produced by the stream.
-        public enum StreamEvent: CustomStringConvertible, Equatable {
+        public enum StreamEvent: CustomStringConvertible, Equatable, Sendable {
             
             /// A new heading value has been received.
             case didUpdateHeading(_ heading: CLHeading)
             
             /// An error has occurred.
-            case didFailWithError(_ error: Error)
+            case didFailWithError(_ error: any Error)
             
             public static func == (lhs: Tasks.HeadingMonitoring.StreamEvent, rhs: Tasks.HeadingMonitoring.StreamEvent) -> Bool {
                 switch (lhs, rhs) {
@@ -75,7 +75,7 @@ extension Tasks {
         
         public let uuid = UUID()
         public var stream: Stream.Continuation?
-        public var cancellable: CancellableTask?
+        public var cancellable: (any CancellableTask)?
         
         // MARK: - Functions
 

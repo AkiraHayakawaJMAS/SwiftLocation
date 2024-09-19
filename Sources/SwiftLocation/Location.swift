@@ -28,12 +28,12 @@ import CoreLocation
 
 /// Instantiate this class to query and setup the Location Services and all the function
 /// of the library itself.
-public final class Location {
+public final class Location: @unchecked Sendable {
     
     // MARK: - Private Properties
     
     /// Underlying location manager implementation.
-    private(set) var locationManager: LocationManagerProtocol
+    private(set) var locationManager: any LocationManagerProtocol
     
     /// Bridge for async/await communication via tasks.
     private(set) var asyncBridge = LocationAsyncBridge()
@@ -155,7 +155,7 @@ public final class Location {
     ///                              but you can provide your own.
     /// - Parameter allowsBackgroundLocationUpdates: Use this property to enable and disable background updates programmatically.
     ///                                              By default is `false`. Read the documentation to configure the environment correctly.
-    public init(locationManager: LocationManagerProtocol = CLLocationManager(),
+    public init(locationManager: any LocationManagerProtocol = CLLocationManager(),
                 allowsBackgroundLocationUpdates: Bool = false) {
         self.locationDelegate = LocationDelegate(asyncBridge: self.asyncBridge)
         self.locationManager = locationManager

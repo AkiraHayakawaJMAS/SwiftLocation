@@ -28,7 +28,7 @@ import CoreLocation
 
 extension Tasks {
     
-    public final class ContinuousUpdateLocation: AnyTask {
+    public final class ContinuousUpdateLocation: AnyTask, @unchecked Sendable {
         
         // MARK: - Support Structures
 
@@ -42,7 +42,7 @@ extension Tasks {
             case didUpdateLocations(_ locations: [CLLocation])
             
             /// Something went wrong while reading new locations.
-            case didFailed(_ error: Error)
+            case didFailed(_ error: any Error)
             
             #if os(iOS)
             /// Location updates did resume.
@@ -67,7 +67,7 @@ extension Tasks {
             }
             
             /// Error received if any.
-            public var error: Error? {
+            public var error: (any Error)? {
                 guard case .didFailed(let e) = self else {
                     return nil
                 }
@@ -111,7 +111,7 @@ extension Tasks {
         
         public let uuid = UUID()
         public var stream: Stream.Continuation?
-        public var cancellable: CancellableTask?
+        public var cancellable: (any CancellableTask)?
         
         // MARK: - Private Properties
 

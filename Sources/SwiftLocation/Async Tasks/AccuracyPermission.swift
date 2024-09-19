@@ -28,16 +28,16 @@ import CoreLocation
 
 extension Tasks {
     
-    public final class AccuracyPermission: AnyTask {
+    public final class AccuracyPermission: AnyTask, @unchecked Sendable {
         
         // MARK: - Support Structures
 
-        public typealias Continuation = CheckedContinuation<CLAccuracyAuthorization, Error>
+        public typealias Continuation = CheckedContinuation<CLAccuracyAuthorization, any Error>
         
         // MARK: - Public Properties
 
         public let uuid = UUID()
-        public var cancellable: CancellableTask?
+        public var cancellable: (any CancellableTask)?
         var continuation: Continuation?
         
         // MARK: - Private Properties

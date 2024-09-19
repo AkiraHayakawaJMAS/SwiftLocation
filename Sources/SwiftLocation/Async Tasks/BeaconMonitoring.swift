@@ -24,12 +24,12 @@
 //
 
 import Foundation
-import CoreLocation
+@preconcurrency import CoreLocation
 
 #if !os(watchOS) && !os(tvOS)
 extension Tasks {
     
-    public final class BeaconMonitoring: AnyTask {
+    public final class BeaconMonitoring: AnyTask, @unchecked Sendable {
         
         // MARK: - Support Structures
 
@@ -37,9 +37,9 @@ extension Tasks {
         public typealias Stream = AsyncStream<StreamEvent>
         
         /// The event produced by the stream.
-        public enum StreamEvent: CustomStringConvertible, Equatable {
+        public enum StreamEvent: CustomStringConvertible, Equatable, Sendable {
             case didRange(beacons: [CLBeacon], constraint: CLBeaconIdentityConstraint)
-            case didFailRanginFor(constraint: CLBeaconIdentityConstraint, error: Error)
+            case didFailRanginFor(constraint: CLBeaconIdentityConstraint, error: any Error)
             
             public static func == (lhs: Tasks.BeaconMonitoring.StreamEvent, rhs: Tasks.BeaconMonitoring.StreamEvent) -> Bool {
                 switch (lhs, rhs) {
@@ -69,7 +69,7 @@ extension Tasks {
 
         public let uuid = UUID()
         public var stream: Stream.Continuation?
-        public var cancellable: CancellableTask?
+        public var cancellable: (any CancellableTask)?
         public private(set) var satisfying: CLBeaconIdentityConstraint
         
         // MARK: - Initialization

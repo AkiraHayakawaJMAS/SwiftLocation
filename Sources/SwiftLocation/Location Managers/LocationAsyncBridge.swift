@@ -28,11 +28,11 @@ import CoreLocation
 
 /// This bridge is used to link the object which manage the underlying events
 /// from `CLLocationManagerDelegate`.
-final class LocationAsyncBridge: CancellableTask {
+final class LocationAsyncBridge: CancellableTask, @unchecked Sendable {
     
     // MARK: - Private Properties
     
-    private var tasks = [AnyTask]()
+    private var tasks = [any AnyTask]()
     weak var location: Location?
 
     // MARK: - Internal function
@@ -40,7 +40,7 @@ final class LocationAsyncBridge: CancellableTask {
     /// Add a new task to the queued operations to bridge.
     ///
     /// - Parameter task: task to add.
-    func add(task: AnyTask) {
+    func add(task: any AnyTask) {
         task.cancellable = self
         tasks.append(task)
         task.willStart()
@@ -49,7 +49,7 @@ final class LocationAsyncBridge: CancellableTask {
     /// Cancel the execution of a task.
     ///
     /// - Parameter task: task to cancel.
-    func cancel(task: AnyTask) {
+    func cancel(task: any AnyTask) {
         cancel(taskUUID: task.uuid)
     }
     
@@ -72,7 +72,7 @@ final class LocationAsyncBridge: CancellableTask {
     /// - Parameters:
     ///   - type: type of `AnyTask` conform task to remove.
     ///   - condition: optional condition to verify in order to cancel.
-    func cancel(tasksTypes type: AnyTask.Type, condition: ((AnyTask) -> Bool)? = nil) {
+    func cancel(tasksTypes type: (any AnyTask.Type), condition: ((any AnyTask) -> Bool)? = nil) {
         let typeToRemove = ObjectIdentifier(type)
         tasks.removeAll(where: {
             let isCorrectType = ($0.taskType == typeToRemove)

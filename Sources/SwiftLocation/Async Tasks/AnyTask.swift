@@ -27,9 +27,9 @@ import Foundation
 
 public enum Tasks { }
 
-public protocol AnyTask: AnyObject {
+public protocol AnyTask: AnyObject, Sendable {
     
-    var cancellable: CancellableTask? { get set }
+    var cancellable: (any CancellableTask)? { get set }
     var uuid: UUID { get }
     var taskType: ObjectIdentifier { get }
     

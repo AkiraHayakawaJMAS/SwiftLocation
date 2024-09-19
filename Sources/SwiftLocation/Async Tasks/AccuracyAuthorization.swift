@@ -28,7 +28,7 @@ import CoreLocation
 
 extension Tasks {
     
-    public final class AccuracyAuthorization: AnyTask {
+    public final class AccuracyAuthorization: AnyTask, @unchecked Sendable {
         
         // MARK: - Support Structures
 
@@ -62,7 +62,7 @@ extension Tasks {
 
         public let uuid = UUID()
         public var stream: Stream.Continuation?
-        public var cancellable: CancellableTask?
+        public var cancellable: (any CancellableTask)?
         
         // MARK: - Functions
 

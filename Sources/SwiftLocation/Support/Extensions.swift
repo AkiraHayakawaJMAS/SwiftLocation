@@ -60,7 +60,7 @@ extension CLLocationManager: LocationManagerProtocol {
     
 }
 
-extension CLAccuracyAuthorization: CustomStringConvertible {
+extension CLAccuracyAuthorization: Swift.CustomStringConvertible {
     
     public var description: String {
         switch self {
@@ -75,7 +75,7 @@ extension CLAccuracyAuthorization: CustomStringConvertible {
     
 }
 
-extension CLAuthorizationStatus: CustomStringConvertible {
+extension CLAuthorizationStatus: Swift.CustomStringConvertible {
     
     public var description: String {
         switch self {

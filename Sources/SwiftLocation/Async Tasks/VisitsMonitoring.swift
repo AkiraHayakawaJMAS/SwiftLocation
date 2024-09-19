@@ -24,12 +24,12 @@
 //
 
 import Foundation
-import CoreLocation
+@preconcurrency import CoreLocation
 
 #if !os(watchOS) && !os(tvOS)
 extension Tasks {
     
-    public final class VisitsMonitoring: AnyTask {
+    public final class VisitsMonitoring: AnyTask, @unchecked Sendable {
         
         // MARK: - Support Structures
         
@@ -37,13 +37,13 @@ extension Tasks {
         public typealias Stream = AsyncStream<StreamEvent>
 
         /// The event produced by the stream.
-        public enum StreamEvent: CustomStringConvertible, Equatable {
+        public enum StreamEvent: CustomStringConvertible, Equatable, Sendable {
 
             /// A new visit-related event was received.
             case didVisit(_ visit: CLVisit)
             
             /// Receive an error.
-            case didFailWithError(_ error: Error)
+            case didFailWithError(_ error: any Error)
             
             public var description: String {
                 switch self {
@@ -70,7 +70,7 @@ extension Tasks {
 
         public let uuid = UUID()
         public var stream: Stream.Continuation?
-        public var cancellable: CancellableTask?
+        public var cancellable: (any CancellableTask)?
         
         // MARK: - Functions
 

@@ -24,11 +24,11 @@
 //
 
 import Foundation
-import CoreLocation
+@preconcurrency import CoreLocation
 
 extension Tasks {
     
-    public final class RegionMonitoring: AnyTask {
+    public final class RegionMonitoring: AnyTask, @unchecked Sendable {
         
         // MARK: - Support Structures
 
@@ -36,7 +36,7 @@ extension Tasks {
         public typealias Stream = AsyncStream<StreamEvent>
         
         /// The event produced by the stream.
-        public enum StreamEvent: CustomStringConvertible, Equatable {
+        public enum StreamEvent: CustomStringConvertible, Equatable, Sendable {
         
             /// User entered the specified region.
             case didEnterTo(region: CLRegion)
@@ -48,7 +48,7 @@ extension Tasks {
             case didStartMonitoringFor(region: CLRegion)
             
             /// Specified  region monitoring error occurred.
-            case monitoringDidFailFor(region: CLRegion?, error: Error)
+            case monitoringDidFailFor(region: CLRegion?, error: any Error)
             
             public var description: String {
                 switch self {
@@ -84,7 +84,7 @@ extension Tasks {
         
         public let uuid = UUID()
         public var stream: Stream.Continuation?
-        public var cancellable: CancellableTask?
+        public var cancellable: (any CancellableTask)?
         
         private weak var instance: Location?
         private(set) var region: CLRegion

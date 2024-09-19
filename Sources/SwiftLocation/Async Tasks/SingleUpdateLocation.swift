@@ -28,22 +28,22 @@ import CoreLocation
 
 extension Tasks {
     
-    public final class SingleUpdateLocation: AnyTask {
+    public final class SingleUpdateLocation: AnyTask, @unchecked Sendable {
         
         // MARK: - Support Structures
 
-        public typealias Continuation = CheckedContinuation<ContinuousUpdateLocation.StreamEvent, Error>
+        public typealias Continuation = CheckedContinuation<ContinuousUpdateLocation.StreamEvent, any Error>
         
         // MARK: - Public Properties
 
         public let uuid = UUID()
-        public var cancellable: CancellableTask?
+        public var cancellable: (any CancellableTask)?
         var continuation: Continuation?
         
         // MARK: - Private Properties
 
-        private var accuracyFilters: AccuracyFilters?
-        private var timeout: TimeInterval?
+        private let accuracyFilters: AccuracyFilters?
+        private let timeout: TimeInterval?
         private weak var instance: Location?
         
         // MARK: - Initialization
