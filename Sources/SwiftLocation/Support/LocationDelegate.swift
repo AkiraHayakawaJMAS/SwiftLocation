@@ -28,7 +28,7 @@ import CoreLocation
 
 /// This is the class which receive events from the `LocationManagerProtocol` implementation
 /// and dispatch to the bridged tasks.
-final class LocationDelegate: NSObject, CLLocationManagerDelegate {
+final class LocationDelegate: NSObject, CLLocationManagerDelegate, @unchecked Sendable {
     
     private weak var asyncBridge: LocationAsyncBridge?
     
@@ -44,7 +44,14 @@ final class LocationDelegate: NSObject, CLLocationManagerDelegate {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         asyncBridge?.dispatchEvent(.didChangeAuthorization(locationManager.authorizationStatus))
         asyncBridge?.dispatchEvent(.didChangeAccuracyAuthorization(locationManager.accuracyAuthorization))
-        asyncBridge?.dispatchEvent(.didChangeLocationEnabled(locationManager.locationServicesEnabled()))
+        if Thread.isMainThread {
+            DispatchQueue.global().async {[weak self] in
+                guard let self = self else { return }
+                self.asyncBridge?.dispatchEvent(.didChangeLocationEnabled(locationManager.locationServicesEnabled()))
+            }
+        }else{
+            asyncBridge?.dispatchEvent(.didChangeLocationEnabled(locationManager.locationServicesEnabled()))
+        }
     }
     
     // MARK: - Location Updates
